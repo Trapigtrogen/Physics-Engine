@@ -12,7 +12,6 @@
 #include <fstream>
 
 namespace engine {
-
 	class GraphicsSystem {
 	public:
 		GraphicsSystem();

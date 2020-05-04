@@ -3,6 +3,9 @@
 #include <fstream>
 #include <string>
 #include <GLFW/glfw3.h> 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Functionality {
 public:
@@ -17,6 +20,7 @@ public:
 	std::string loadFile(const std::string fileName);
 	void writeFile(const std::string fileName, const std::string string);
 private:
+
 	double deltaTime = 0.0f;	// Time between current frame and last frame
 	double lastFrame = 0.0f; // Time of last frame
 };

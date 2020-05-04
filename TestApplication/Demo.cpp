@@ -15,8 +15,6 @@ int main() {
 	GLuint cubeShader = graphics.CreateShader("Assets/vertexShader.txt", "Assets/fragmentShader.txt");
 	int texture = graphics.loadTexture((char*)"Assets/wall.jpg");
 
-	float rotX = 1;
-	float rotY = 1;
 	glm::vec2 size(1.3f, 0.3f);
 
 	Object* cube1 = new Object;
@@ -27,25 +25,25 @@ int main() {
 	cube1->freezeRotation = true;
 	cube1->position = glm::vec2(0.0f, 0.0f);
 	//cube1->SetRotationPoint(1.0f, 0.0f);
-	objects.push_back(cube1);
+	//objects.push_back(cube1);
 	   	 
 	Object* cube2 = new Object;	
 	cube2->position = glm::vec2(0.5f, 2.0f);
 	cube2->size = size;
 	objects.push_back(cube2);
 
-	/*
+	
 	srand(time(NULL));
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < 10; i++) {
 		Object *cube = new Object;
 		cube->mass = 1.0f;
 		glm::vec2 size(1.3f, 0.3f);
 		cube->position = glm::vec2(rand() % 11 - 5, rand() % 11 - 5);
 		cube->size = size;
-		objects.push_back(*cube);
+		objects.push_back(cube);
 		cube->useGravity = rand() % 2;
 	}
-	*/
+	
 
 	Object floor;
 	glm::vec2 floorSize(15.0f, 0.3f);
@@ -75,34 +73,30 @@ int main() {
 
 		// Input
 		window.input.ProcessInput();
-
-
-		// Collision tests
-		if (cube2->IsColliding(cube1)) {
-			std::cout << "iscolliding\n";
-			cube2->SetVelocity(100.0f, 0.0f);
-		}
-		else {
-			cube2->useGravity = true;
+		
+		for (std::vector<Object*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+			if ((*it)->IsColliding(cube1)) {
+				std::cout << "is colliding\n";
+			}
 		}
 
 		if (window.input.GetKeyDown(GLFW_KEY_W)) {
 			for (std::vector<Object*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-				(*it)->AddForce(glm::vec2(0.0f, 1.0f), rand() % 10 + 1 / 15);
+				(*it)->Impulse(glm::vec2(0.0f, 1.0f), 10.0f);
 			}
 		}
 
 		if (window.input.GetKeyDown(GLFW_KEY_D)) {
 			for (std::vector<Object*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-				(*it)->AddForce(glm::vec2(1.0f, 0.0f), 3.0f);
-				(*it)->AddTorque(15.0f);
+				(*it)->Impulse(glm::vec2(1.0f, 0.0f), 3.0f);
+				(*it)->AddRotationSpeed(-15.0f);
 			}
 		}
 
 		if (window.input.GetKeyDown(GLFW_KEY_A)) {
 			for (std::vector<Object*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-				(*it)->AddForce(glm::vec2(-1.0f, 0.0f), 3.0f);
-				(*it)->AddTorque(-15.0f);
+				(*it)->Impulse(glm::vec2(-1.0f, 0.0f), 3.0f);
+				(*it)->AddRotationSpeed(15.0f);
 			}
 		}
 
@@ -110,6 +104,7 @@ int main() {
 			for (std::vector<Object*>::iterator it = objects.begin(); it != objects.end(); ++it) {
 				(*it)->SetVelocity(glm::vec2(0.0f, 0.0f));
 				(*it)->SetRotation(0.0f);
+				(*it)->SetRotationSpeed(0.0f);
 			}
 		}
 		// Apply Physics to all objects
@@ -123,23 +118,27 @@ int main() {
 				(*it)->position.y = -3.0f;
 				(*it)->SetVelocity();
 				(*it)->SetRotation(0.0f);
+				(*it)->SetRotationSpeed(0.0f);
 			}
 			// Temp ceiling
 			if ((*it)->position.y > 3.05f) {
 				(*it)->position.y = 3.0f;
 				(*it)->SetVelocity(glm::vec2((*it)->velocity.x, 0.0f));
 				(*it)->SetRotation(0.0f);
+				(*it)->SetRotationSpeed(0.0f);
 			}
 
 			// Left
 			if ((*it)->position.x < -5.5f) {
 				(*it)->position.x = -5.5f;
 				(*it)->SetRotation(90.0f);
+				(*it)->SetRotationSpeed(0.0f);
 			}
 			// Right
 			if ((*it)->position.x > 5.5f) {
 				(*it)->position.x = 5.5f;
 				(*it)->SetRotation(90.0f);
+				(*it)->SetRotationSpeed(0.0f);
 			}
 		}
 
@@ -148,6 +147,9 @@ int main() {
 			graphics.transform(cubeShader, (*it)->rotation, (*it)->position.x, (*it)->position.y, (*it)->size.x, (*it)->size.y);
 			graphics.DrawCube(cubeShader, texture);
 		}
+
+		graphics.transform(cubeShader, cube1->rotation, cube1->position.x, cube1->position.y, cube1->size.x, cube1->size.y);
+		graphics.DrawCube(cubeShader, texture);
 
 		// Temp walls
 		graphics.transform(cubeShader, floor.rotation, floor.position[0], floor.position[1], floor.size[0], floor.size[1]);
